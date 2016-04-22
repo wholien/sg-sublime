@@ -75,13 +75,12 @@ class SgDocCommand(sublime_plugin.TextCommand):
 
 	def run_godef(self):
 		godef_args = [self.godefpath, '-f', self.view.file_name(), '-o', self.cursor_offset(), '-t']
-		print('[Godef] Running shell command: %s' % ' '.join(godef_args))
+		logging.info('[Godef] Running shell command: %s' % ' '.join(godef_args))
 
 		godef_process = subprocess.Popen(godef_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
 		godef_output, stderr = godef_process.communicate()
 		if stderr:
 			logging.info('[godef] ERROR: no definition found: %s' % str(stderr))
-		print("GODEF OUTPUT = " + str(godef_output))
 		return godef_output
 
 	def issue_live_update(self, variable, repo_package):
@@ -99,13 +98,10 @@ class SgDocCommand(sublime_plugin.TextCommand):
 
 		godef_output = self.run_godef()
 
-		print("GODEF_OUTPUT = " + str(godef_output))
-
 		variable = str(godef_output).split('\\n')[1].split()[0]
 		if variable == 'type':
 			variable = str(godef_output).split('\\n')[1].split()[1]
 
-		print("VARIABLE = " + variable)
 		logging.debug('[godef] Variable identified: %s' % variable)
 
 		repo_package = self.get_repo_package(str(godef_output).split(':')[0].split("'")[1])
