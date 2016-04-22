@@ -10,12 +10,15 @@ import sublime
 import urllib.parse
 import urllib.request
 
-
 SOURCEGRAPH_BASE_URL = 'http://localhost:3080' #TODO change for production
-SOURCEGRAPH_LOG_FILE = '/tmp/sourcegraph-sublime.log'
+SOURCEGRAPH_LOG_FILE = os.path.join(sublime.packages_path(), 'User', 'Sourcegraph', 'sourcegraph-sublime.log')
+print("LOG FILE = " + SOURCEGRAPH_LOG_FILE)
 GOPATH = os.getenv('GOPATH', '/Users/john/Documents/junior/sourcegraph/gowork') #TODO generalize
 GOROOT = os.getenv('GOROOT', '/usr/local/go')
 
+class SgOpenLogCommand(sublime_plugin.WindowCommand):
+	def run(self, log):
+		self.window.open_file(os.path.join(sublime.packages_path(), 'User', 'Sourcegraph', log))
 
 class SgDocCommand(sublime_plugin.TextCommand):
 	def __init__(self, _):

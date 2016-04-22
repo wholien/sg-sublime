@@ -1,0 +1,6 @@
+[
+    {
+		"keys": ["ctrl+.", "ctrl+0"],
+		"command": "sg_doc"
+	},
+]
