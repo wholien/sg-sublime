@@ -12,7 +12,6 @@ import urllib.request
 
 SOURCEGRAPH_BASE_URL = 'http://localhost:3080' #TODO change for production
 SOURCEGRAPH_LOG_FILE = os.path.join(sublime.packages_path(), 'User', 'Sourcegraph', 'sourcegraph-sublime.log')
-print("LOG FILE = " + SOURCEGRAPH_LOG_FILE)
 GOPATH = os.getenv('GOPATH', '/Users/john/Documents/junior/sourcegraph/gowork') #TODO generalize
 GOROOT = os.getenv('GOROOT', '/usr/local/go')
 
