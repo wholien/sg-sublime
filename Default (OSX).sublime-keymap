@@ -6,7 +6,6 @@
 	{
 		"keys": ["super+.", "super+0"],
 		"command": "sg_doc",
-		"args": {"mode": "goto"},
 		"context": [{ "key": "selector", "operator": "equal", "operand": "source.go" }]
 	},
 ]
