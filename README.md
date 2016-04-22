@@ -10,6 +10,9 @@ We recommend you watch the [demo screencast]() to see potential use cases for th
 
 ## Setup
 
- 1. 
+ 1. First, navigate to the packages directory and clone the `sg-sublime` plugin:
+
+ 	`git 
+
  2. 
  3. 
