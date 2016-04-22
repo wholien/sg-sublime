@@ -8,9 +8,16 @@ We recommend you watch the [demo screencast]() to see potential use cases for th
 
 ## Setup
 
- 1. First, navigate to the Sublime Text Packages directory (this can be found by following `Preferences > Browse Packages...`) and clone the `sg-sublime` plugin:
+ 1. First, navigate to the Sublime Text Packages directory (this can be found in Sublime by clicking `Sublime Text > Preferences > Browse Packages...`) and clone the `sg-sublime` plugin:
 
  	`git clone https://github.com/luttig/sg-sublime`
 
- 2. 
+ 2. Open `Sourcegraph.sublime-settings` by clicking `Sublime Text > Preferences > Package Settings > Sourcegraph > Settings - User`, and add your GOPATH and GOROOT as follows:
+
+ 	`{
+    "env": {
+    	"GOPATH": "$HOME/Documents/junior/sourcegraph/gowork",
+		"GOROOT": "/usr/local/go"
+	}`
+}
  3. 
