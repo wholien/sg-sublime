@@ -1,18 +1,16 @@
-# Sourcegraph + Sublime
+# Sourcegraph Live Sublime Plugin
 
-*A snappy jump-to-def plugin for Sublime*
+The Sourcegraph Sublime Plugin allows you to view Go definitions in real-time on [sourcegraph.com](http://www.sourcegraph.com) as you code, so you never have to leave your editor.
 
 ## Overview
-
-Sourcegraph for Sublime is a plugin which allows users to quickly jump-to-def on [sourcegraph.com](http://www.sourcegraph.com). Typical jump-to-def time with warm cache is 30ms, which is barely noticeable.
 
 We recommend you watch the [demo screencast]() to see potential use cases for the plugin.
 
 ## Setup
 
- 1. First, navigate to the packages directory and clone the `sg-sublime` plugin:
+ 1. First, navigate to the Sublime Text Packages directory (this can be found by following `Preferences > Browse Packages...`) and clone the `sg-sublime` plugin:
 
- 	`git 
+ 	`git clone https://github.com/luttig/sg-sublime`
 
  2. 
  3. 
