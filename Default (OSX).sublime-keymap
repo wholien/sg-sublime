@@ -1,11 +1,6 @@
 [
     {
-        "keys": ["super+shift+s"],
-        "command": "sourcegraph"
-    },
-	{
 		"keys": ["super+.", "super+0"],
-		"command": "sg_doc",
-		"context": [{ "key": "selector", "operator": "equal", "operand": "source.go" }]
+		"command": "sg_doc"
 	},
 ]
