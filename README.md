@@ -14,10 +14,12 @@ We recommend you watch the [demo screencast]() to see potential use cases for th
 
  2. Open `Sourcegraph.sublime-settings` by clicking `Sublime Text > Preferences > Package Settings > Sourcegraph > Settings - User`, and add your GOPATH and GOROOT as follows:
 
- 	`{
-    "env": {
-    	"GOPATH": "$HOME/Documents/junior/sourcegraph/gowork",
+```json
+{
+	"env": {
+		"GOPATH": "$HOME/Documents/junior/sourcegraph/gowork",
 		"GOROOT": "/usr/local/go"
-	}`
+	}
 }
+```
  3. 
