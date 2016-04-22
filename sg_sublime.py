@@ -89,7 +89,7 @@ class SgDocCommand(sublime_plugin.TextCommand):
 		payload_url = '%s/-/golang?repo=%s&pkg=%s&def=%s' % (SOURCEGRAPH_BASE_URL, repo_package, repo_package, variable)
 		logging.info('[curl] Sending payload URL: %s' % payload_url)
 		logging.debug('[curl] Sending post request to %s' % post_url)
-		curl_command = 'curl -XPOST -d \'{"Action":{"URL":"%s"},"CheckForListeners":true}\' http://localhost:3080/.api/live/%s' % (payload_url, self.SOURCEGRAPH_CHANNEL)
+		curl_command = 'curl -XPOST -d \'{"Action":{"URL":"%s"},"CheckForListeners":true}\' %s/.api/live/%s' % (payload_url, SOURCEGRAPH_BASE_URL, self.SOURCEGRAPH_CHANNEL)
 		subprocess.Popen(curl_command, shell=self.useShell)
 
 	def run(self, _):
