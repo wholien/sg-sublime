@@ -1,0 +1,7 @@
+[
+{
+    "id" : "sourcegraph",
+    "caption" : "View on Sourcegraph.com",
+    "command" : "sourcegraph",   
+}
+]
