@@ -11,42 +11,53 @@ import urllib.parse
 import urllib.request
 
 SOURCEGRAPH_BASE_URL = 'http://localhost:3080' #TODO change for production
-SOURCEGRAPH_LOG_FILE = os.path.join(sublime.packages_path(), 'User', 'Sourcegraph', 'sourcegraph-sublime.log')
-GOPATH = os.getenv('GOPATH', '/Users/john/Documents/junior/sourcegraph/gowork') #TODO generalize
-GOROOT = os.getenv('GOROOT', '/usr/local/go')
+SOURCEGRAPH_LOG_FILE = '/tmp/sourcegraph-sublime.log'
+logging.basicConfig(filename=SOURCEGRAPH_LOG_FILE, level=logging.DEBUG)
+
+settings = sublime.load_settings('Sourcegraph.sublime-settings')
+GOPATH = settings.get('GOPATH', '~/go') #TODO generalize
+GOROOT = settings.get('GOROOT', '/usr/local/go')
+
+print("GOPATH = " + GOPATH)
+
+SOURCEGRAPH_CHANNEL = None
+
+def useShell():
+	return False if os.name != "posix" else True
+
+def get_channel():
+	global SOURCEGRAPH_CHANNEL
+	if SOURCEGRAPH_CHANNEL == None:
+		SOURCEGRAPH_CHANNEL = '%s-%06x%06x%06x%06x%06x%06x' % (os.environ.get('USER'), \
+			random.randrange(16**6), random.randrange(16**6), random.randrange(16**6), \
+			random.randrange(16**6), random.randrange(16**6), random.randrange(16**6))
+	else:
+		logging.info('Using existing channel: %s' % SOURCEGRAPH_CHANNEL)
+
+def open_live_channel():
+	get_channel()
+	command = 'open %s/-/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)
+	logging.info('[open_live] Opening live channel in browser: %s' % command)
+	subprocess.Popen(command, shell=useShell())
+
+class SgOpenLiveCommand(sublime_plugin.WindowCommand):
+	def run(self):
+		open_live_channel()
 
 class SgOpenLogCommand(sublime_plugin.WindowCommand):
 	def run(self, log):
-		self.window.open_file(os.path.join(sublime.packages_path(), 'User', 'Sourcegraph', log))
+		self.window.open_file(SOURCEGRAPH_LOG_FILE)
 
-class SgDocCommand(sublime_plugin.TextCommand):
-	def __init__(self, _):
-		super().__init__(_)
-		logging.basicConfig(filename=SOURCEGRAPH_LOG_FILE, level=logging.DEBUG)
+class SgDocCommand(sublime_plugin.EventListener):
+	def __init__(self):
+		super().__init__()
+		global SOURCEGRAPH_CHANNEL
+		SOURCEGRAPH_CHANNEL = None
 		self.HAVE_OPENED_LIVE_CHANNEL = False
-		self.SOURCEGRAPH_CHANNEL = None
-		self.settings = sublime.load_settings('Sourcegraph.sublime-settings')
 		self.godefpath = os.path.join(GOPATH, "bin", 'godef')
 		self.env = os.environ.copy()
 		self.env['GOPATH'] = GOPATH
 		logging.debug('env: %s' % str(self.env))
-
-	def useShell(self):
-		return False if os.name != "posix" else True
-
-	def get_channel(self):
-		if self.SOURCEGRAPH_CHANNEL == None:
-			self.SOURCEGRAPH_CHANNEL = '%s-%06x%06x%06x%06x%06x%06x' % (os.environ.get('USER'),\
-				random.randrange(16**6), random.randrange(16**6), random.randrange(16**6), \
-				random.randrange(16**6), random.randrange(16**6), random.randrange(16**6))
-		else:
-			logging.info('Using existing channel: %s' % self.SOURCEGRAPH_CHANNEL)
-			
-	def open_live_channel(self):
-		self.get_channel()
-		command = 'open %s/-/live/%s' % (SOURCEGRAPH_BASE_URL, self.SOURCEGRAPH_CHANNEL)
-		logging.info('Opening live channel in browser: %s' % command)
-		subprocess.Popen(command, shell=self.useShell())
 
 	def live_action_callback(self, r, *args, **kwargs):
 		log.debug('Live action status code: %i' % r.status_code)
@@ -81,22 +92,32 @@ class SgDocCommand(sublime_plugin.TextCommand):
 		godef_output, stderr = godef_process.communicate()
 		if stderr:
 			logging.info('[godef] ERROR: no definition found: %s' % str(stderr))
+		logging.info("[godef] Output: " + str(godef_output))
 		return godef_output
 
 	def issue_live_update(self, variable, repo_package):
-		post_url = '%s/.api/live/%s' % (SOURCEGRAPH_BASE_URL, self.SOURCEGRAPH_CHANNEL)
+		post_url = '%s/.api/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)
 		payload_url = '%s/-/golang?repo=%s&pkg=%s&def=%s' % (SOURCEGRAPH_BASE_URL, repo_package, repo_package, variable)
 		logging.info('[curl] Sending payload URL: %s' % payload_url)
 		logging.debug('[curl] Sending post request to %s' % post_url)
-		curl_command = 'curl -XPOST -d \'{"Action":{"URL":"%s"},"CheckForListeners":true}\' %s/.api/live/%s' % (payload_url, SOURCEGRAPH_BASE_URL, self.SOURCEGRAPH_CHANNEL)
-		subprocess.Popen(curl_command, shell=self.useShell)
+		curl_command = 'curl -XPOST -d \'{"Action":{"URL":"%s"},"CheckForListeners":true}\' %s/.api/live/%s' % (payload_url, SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)
+		subprocess.Popen(curl_command, shell=useShell)
 
-	def run(self, _):
+	def on_selection_modified_async(self, view):
+		if view.file_name() == None:
+			return
+		if not view.file_name().endswith("go"):
+			return
+		self.view = view
+
 		if not self.HAVE_OPENED_LIVE_CHANNEL:
-			self.open_live_channel()
+			open_live_channel()
 			self.HAVE_OPENED_LIVE_CHANNEL = True
 
 		godef_output = self.run_godef()
+
+		if (str(godef_output) == "b''"): # godef doesn't return anything useful
+			return
 
 		variable = str(godef_output).split('\\n')[1].split()[0]
 		if variable == 'type':

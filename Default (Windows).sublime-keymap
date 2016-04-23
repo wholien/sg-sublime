@@ -1,6 +1,6 @@
 [
     {
 		"keys": ["ctrl+.", "ctrl+0"],
-		"command": "sg_doc"
+		"command": "sg_open_live"
 	},
 ]
