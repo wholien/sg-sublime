@@ -25,4 +25,4 @@ We recommend you watch the [demo screencast]() to see potential use cases for th
 
  ## Usage
 
-The plugin should automatically open a browser tab to initialize your live session. If, for any reason, your tab gets closed, press `cmd+., cmd+0` in any file to reopen the Sourcegraph live tab. As you navigate through Go files, the tab should automatically load the definition and references for recognized variables.
+The plugin should automatically open a browser tab to initialize your live session. If, for any reason, your tab gets closed, press `&#8984;+., &#8984;+0` in any file to reopen the Sourcegraph live tab. As you navigate through Go files, the tab should automatically load the definition and references for recognized variables.
