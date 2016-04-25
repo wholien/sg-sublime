@@ -60,13 +60,6 @@
 									"file": "${packages}/Sourcegraph/README.md"
 								}
 							},
-							{
-								"caption": "Usage & Tips",
-								"command": "open_file",
-								"args": {
-									"file": "${packages}/Sourcegraph/USAGE.md"
-								}
-							},
 							{ "caption": "-" },
 							{
 								"caption": "Open Log File",
