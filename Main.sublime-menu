@@ -71,7 +71,6 @@
 							{
 								"caption": "Open Log File",
 								"command": "sg_open_log",
-								"args": { "log": "sourcegraph-sublime.log" }
 							}
 						]
 					}

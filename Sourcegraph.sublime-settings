@@ -1,0 +1,4 @@
+{
+	"SG_BASE_URL": "http://localhost:3080",
+	"SG_LOG_FILE": "/tmp/sourcegraph-sublime.log",
+}

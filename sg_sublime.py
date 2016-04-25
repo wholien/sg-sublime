@@ -10,15 +10,14 @@ import sublime
 import urllib.parse
 import urllib.request
 
-SOURCEGRAPH_BASE_URL = 'http://localhost:3080' #TODO change for production
-SOURCEGRAPH_LOG_FILE = '/tmp/sourcegraph-sublime.log'
+settings = sublime.load_settings('Sourcegraph.sublime-settings')
+
+SOURCEGRAPH_BASE_URL = settings.get('SG_BASE_URL', 'http://sourcegraph.com') #TODO change for production
+SOURCEGRAPH_LOG_FILE = settings.get('SG_LOG_FILE', '/tmp/sourcegraph-sublime.log')
 logging.basicConfig(filename=SOURCEGRAPH_LOG_FILE, level=logging.DEBUG)
 
-settings = sublime.load_settings('Sourcegraph.sublime-settings')
-GOPATH = settings.get('GOPATH', '~/go') #TODO generalize
+GOPATH = settings.get('GOPATH', '~/go')
 GOROOT = settings.get('GOROOT', '/usr/local/go')
-
-print("GOPATH = " + GOPATH)
 
 SOURCEGRAPH_CHANNEL = None
 
@@ -45,7 +44,7 @@ class SgOpenLiveCommand(sublime_plugin.WindowCommand):
 		open_live_channel()
 
 class SgOpenLogCommand(sublime_plugin.WindowCommand):
-	def run(self, log):
+	def run(self):
 		self.window.open_file(SOURCEGRAPH_LOG_FILE)
 
 class SgDocCommand(sublime_plugin.EventListener):
@@ -57,6 +56,8 @@ class SgDocCommand(sublime_plugin.EventListener):
 		self.godefpath = os.path.join(GOPATH, "bin", 'godef')
 		self.env = os.environ.copy()
 		self.env['GOPATH'] = GOPATH
+		self.last_var_lookup = None
+		self.last_repo_package_lookup = None
 		logging.debug('env: %s' % str(self.env))
 
 	def live_action_callback(self, r, *args, **kwargs):
@@ -86,14 +87,15 @@ class SgDocCommand(sublime_plugin.EventListener):
 
 	def run_godef(self):
 		godef_args = [self.godefpath, '-f', self.view.file_name(), '-o', self.cursor_offset(), '-t']
-		logging.info('[Godef] Running shell command: %s' % ' '.join(godef_args))
+		logging.info('[godef] Running shell command: %s' % ' '.join(godef_args))
 
 		godef_process = subprocess.Popen(godef_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
 		godef_output, stderr = godef_process.communicate()
 		if stderr:
-			logging.info('[godef] ERROR: no definition found: %s' % str(stderr))
-		logging.info("[godef] Output: " + str(godef_output))
-		return godef_output
+			logging.info('[godef] No definition found, returning. Message: %s' % str(stderr))
+		else:
+			logging.info("[godef] Output: " + str(godef_output))
+		return stderr, godef_output
 
 	def issue_live_update(self, variable, repo_package):
 		post_url = '%s/.api/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)
@@ -114,9 +116,9 @@ class SgDocCommand(sublime_plugin.EventListener):
 			open_live_channel()
 			self.HAVE_OPENED_LIVE_CHANNEL = True
 
-		godef_output = self.run_godef()
+		stderr, godef_output = self.run_godef()
 
-		if (str(godef_output) == "b''"): # godef doesn't return anything useful
+		if stderr or str(godef_output) == b'': # godef doesn't return anything useful
 			return
 
 		variable = str(godef_output).split('\\n')[1].split()[0]
@@ -128,4 +130,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 		repo_package = self.get_repo_package(str(godef_output).split(':')[0].split("'")[1])
 		logging.debug('[go list] Path to repo/package: %s' % repo_package)
 
-		self.issue_live_update(variable, repo_package)
+		if repo_package != self.last_repo_package_lookup or variable != self.last_var_lookup:
+			self.last_var_lookup = variable
+			self.last_repo_package_lookup = repo_package
+			self.issue_live_update(variable, repo_package)
