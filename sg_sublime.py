@@ -85,16 +85,17 @@ class SgDocCommand(sublime_plugin.EventListener):
 		buffer_before = bytearray(string_before, encoding="utf8")
 		return str(len(buffer_before))
 
-	def run_godef(self):
-		godef_args = [self.godefpath, '-f', self.view.file_name(), '-o', self.cursor_offset(), '-t']
+	def run_godef(self, view):
+		godef_args = [self.godefpath, '-i', '-o', self.cursor_offset(), '-t']
 		logging.info('[godef] Running shell command: %s' % ' '.join(godef_args))
 
-		godef_process = subprocess.Popen(godef_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
-		godef_output, stderr = godef_process.communicate()
+		godef_process = subprocess.Popen(godef_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
+		godef_output, stderr = godef_process.communicate(input=str.encode(view.substr(sublime.Region(0, view.size()))))
+
 		if stderr:
-			logging.info('[godef] No definition found, returning. Message: %s' % str(stderr))
+			logging.info('[godef] No definition found, returning. Message: %s' % stderr.decode())
 		else:
-			logging.info("[godef] Output: " + str(godef_output))
+			logging.info("[godef] Output: " + godef_output.decode())
 		return stderr, godef_output
 
 	def issue_live_update(self, variable, repo_package):
@@ -116,7 +117,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 			open_live_channel()
 			self.HAVE_OPENED_LIVE_CHANNEL = True
 
-		stderr, godef_output = self.run_godef()
+		stderr, godef_output = self.run_godef(view)
 
 		if stderr or str(godef_output) == b'': # godef doesn't return anything useful
 			return
