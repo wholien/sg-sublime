@@ -23,9 +23,6 @@ GOROOT = settings.get('GOROOT', '/usr/local/go')
 
 SOURCEGRAPH_CHANNEL = None
 
-def useShell():
-	return False if os.name != "posix" else True
-
 def get_channel():
 	global SOURCEGRAPH_CHANNEL
 	if SOURCEGRAPH_CHANNEL == None:
@@ -37,9 +34,9 @@ def get_channel():
 
 def open_live_channel():
 	get_channel()
-	command = 'open %s/-/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)
+	command = ['open', '%s/-/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)]
 	logging.info('[open_live] Opening live channel in browser: %s' % command)
-	subprocess.Popen(command, shell=useShell())
+	subprocess.Popen(command)
 
 class SgOpenLiveCommand(sublime_plugin.WindowCommand):
 	def run(self):
@@ -105,8 +102,8 @@ class SgDocCommand(sublime_plugin.EventListener):
 		payload_url = '%s/-/golang?repo=%s&pkg=%s&def=%s' % (SOURCEGRAPH_BASE_URL, repo_package, repo_package, variable)
 		logging.info('[curl] Sending payload URL: %s' % payload_url)
 		logging.debug('[curl] Sending post request to %s' % post_url)
-		curl_command = 'curl -XPOST -d \'{"Action":{"URL":"%s"},"CheckForListeners":true}\' %s/.api/live/%s' % (payload_url, SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)
-		subprocess.Popen(curl_command, shell=useShell)
+		curl_command = ['curl', '-XPOST', '-d', '{"Action":{"URL":"%s"},"CheckForListeners":true}' % (payload_url), '%s/.api/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)]
+		subprocess.Popen(curl_command)
 
 	def on_selection_modified_async(self, view):
 		if view.file_name() == None:
@@ -115,14 +112,14 @@ class SgDocCommand(sublime_plugin.EventListener):
 			return
 		self.view = view
 
+		stderr, godef_output = self.run_godef(view)
+
+		if stderr or godef_output.decode() == '':
+			return
+
 		if not self.HAVE_OPENED_LIVE_CHANNEL:
 			open_live_channel()
 			self.HAVE_OPENED_LIVE_CHANNEL = True
-
-		stderr, godef_output = self.run_godef(view)
-
-		if stderr or godef_output.decode() == '': # godef doesn't return anything useful
-			return
 
 		variable = godef_output.decode().split('\n')[1].split()[0]
 		if variable == 'type':
