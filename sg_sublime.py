@@ -10,6 +10,8 @@ import sublime
 import urllib.parse
 import urllib.request
 
+import datetime
+
 settings = sublime.load_settings('Sourcegraph.sublime-settings')
 
 SOURCEGRAPH_BASE_URL = settings.get('SG_BASE_URL', 'http://sourcegraph.com') #TODO change for production
@@ -76,8 +78,8 @@ class SgDocCommand(sublime_plugin.EventListener):
 		logging.info('[go list] Issuing command: %s' % ' '.join(golist_command))
 		golist_process = subprocess.Popen(golist_command, cwd=current_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
 		golist_output, stderr = golist_process.communicate()
-		logging.debug('[go list] Command output: %s' % str(golist_output))
-		return str(golist_output).split('\\')[0].split("'")[1] # strip away subprocess junk
+		logging.debug('[go list] Command output: %s' % golist_output.decode())
+		return golist_output.decode().split('\n')[0]
 
 	def cursor_offset(self):
 		string_before = self.view.substr(sublime.Region(0, self.view.sel()[0].begin()))
@@ -119,16 +121,16 @@ class SgDocCommand(sublime_plugin.EventListener):
 
 		stderr, godef_output = self.run_godef(view)
 
-		if stderr or str(godef_output) == b'': # godef doesn't return anything useful
+		if stderr or godef_output.decode() == '': # godef doesn't return anything useful
 			return
 
-		variable = str(godef_output).split('\\n')[1].split()[0]
+		variable = godef_output.decode().split('\n')[1].split()[0]
 		if variable == 'type':
-			variable = str(godef_output).split('\\n')[1].split()[1]
+			variable = godef_output.decode().split('\n')[1].split()[1]
 
 		logging.debug('[godef] Variable identified: %s' % variable)
 
-		repo_package = self.get_repo_package(str(godef_output).split(':')[0].split("'")[1])
+		repo_package = self.get_repo_package(godef_output.decode().split(':')[0])
 		logging.debug('[go list] Path to repo/package: %s' % repo_package)
 
 		if repo_package != self.last_repo_package_lookup or variable != self.last_var_lookup:
