@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Sourcegraph Sublime Plugin allows you to view Go definitions in real-time on [sourcegraph.com](http://www.sourcegraph.com) as you code, so you can stay focused on what's important: your code.
+The Sourcegraph Sublime Plugin allows you to view Go definitions in real-time on [sourcegraph.com](http://www.sourcegraph.com) as you code, so you can stay focused on what's important: your code. When your cursor is on a certain Go symbol, it should load in a live channel in your browser.
 
 ## Setup
 
@@ -25,4 +25,4 @@ Similarly, if you want to try the plugin on a local Sourcegraph server, you can 
 
  ## Usage
 
-The plugin should automatically open a browser tab to initialize your live session. If, for any reason, your tab gets closed, press <kbd>&#8984;</kbd>+<kbd>.</kbd>, <kbd>&#8984;</kbd>+<kbd>0</kbd>g in any file to reopen the Sourcegraph live tab. As you navigate through Go files, the tab should automatically load the definition and references for recognized variables.
+The plugin should automatically open a browser tab to initialize your live session. If, for any reason, your tab gets closed, press <kbd>&#8984;</kbd>+<kbd>.</kbd>, <kbd>&#8984;</kbd>+<kbd>0</kbd>g in any file to reopen the Sourcegraph live tab. Alternatively, you can click on `Sublime Text > Preferences > Package Settings > Sourcegraph > Reopen Browser Tab`. As you navigate through Go files, the tab should automatically load the definition and references for recognized variables.

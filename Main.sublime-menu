@@ -54,11 +54,16 @@
 							},
 							{ "caption": "-" },
 							{
-								"caption": "Read Me",
+								"caption": "Readme",
 								"command": "open_file",
 								"args": {
 									"file": "${packages}/Sourcegraph/README.md"
 								}
+							},
+							{ "caption": "-" },
+							{
+								"caption": "Reopen Browser Tab",
+								"command": "sg_open_live",
 							},
 							{ "caption": "-" },
 							{

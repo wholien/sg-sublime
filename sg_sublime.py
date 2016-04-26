@@ -10,11 +10,9 @@ import sublime
 import urllib.parse
 import urllib.request
 
-import datetime
-
 settings = sublime.load_settings('Sourcegraph.sublime-settings')
 
-SOURCEGRAPH_BASE_URL = settings.get('SG_BASE_URL', 'http://sourcegraph.com') #TODO change for production
+SOURCEGRAPH_BASE_URL = settings.get('SG_BASE_URL', 'https://sourcegraph.com')
 SOURCEGRAPH_LOG_FILE = settings.get('SG_LOG_FILE', '/tmp/sourcegraph-sublime.log')
 logging.basicConfig(filename=SOURCEGRAPH_LOG_FILE, level=logging.DEBUG)
 
@@ -52,7 +50,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 		global SOURCEGRAPH_CHANNEL
 		SOURCEGRAPH_CHANNEL = None
 		self.HAVE_OPENED_LIVE_CHANNEL = False
-		self.godefpath = os.path.join(GOPATH, "bin", 'godef')
+		self.godefpath = os.path.join(GOPATH, 'bin', 'godef')
 		self.env = os.environ.copy()
 		self.env['GOPATH'] = GOPATH
 		self.last_var_lookup = None
@@ -62,7 +60,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 	def live_action_callback(self, r, *args, **kwargs):
 		log.debug('Live action status code: %i' % r.status_code)
 		if (r.status_code == 200):
-			pass # TODO if 408, open tab again - blocked by julien
+			pass # TODO if 408, open tab again - blocked by server-side implementation
 
 	def get_repo_package(self, package_path):
 		package_dir = os.path.dirname(package_path)
@@ -110,6 +108,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 			return
 		if not view.file_name().endswith("go"):
 			return
+
 		self.view = view
 
 		stderr, godef_output = self.run_godef(view)
@@ -126,6 +125,9 @@ class SgDocCommand(sublime_plugin.EventListener):
 			variable = godef_output.decode().split('\n')[1].split()[1]
 
 		logging.debug('[godef] Variable identified: %s' % variable)
+
+		if godef_output.decode().count(':') < 2: #local variable, not from outside file
+			return
 
 		repo_package = self.get_repo_package(godef_output.decode().split(':')[0])
 		logging.debug('[go list] Path to repo/package: %s' % repo_package)
