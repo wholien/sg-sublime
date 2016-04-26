@@ -69,7 +69,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 		current_dir = os.path.dirname(self.view.file_name())
 		logging.debug('[godef] Current directory: %s' % current_dir)
 
-		rel_path = './%s' % (os.path.relpath(package_dir, current_dir))
+		rel_path = os.path.relpath(package_dir, current_dir)
 		golist_command = [os.path.join(GOROOT, 'bin', 'go'), 'list', '-e', rel_path]
 		logging.info('[go list] Issuing command: %s' % ' '.join(golist_command))
 		golist_process = subprocess.Popen(golist_command, cwd=current_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
