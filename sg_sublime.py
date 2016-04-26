@@ -50,9 +50,10 @@ class SgDocCommand(sublime_plugin.EventListener):
 		global SOURCEGRAPH_CHANNEL
 		SOURCEGRAPH_CHANNEL = None
 		self.HAVE_OPENED_LIVE_CHANNEL = False
-		self.godefpath = os.path.join(GOPATH, 'bin', 'godef')
 		self.env = os.environ.copy()
 		self.env['GOPATH'] = GOPATH
+		for gopath_loc in self.env['GOPATH'].split(os.pathsep):
+			self.env['PATH'] += os.pathsep + os.path.join(gopath_loc, 'bin')
 		self.last_var_lookup = None
 		self.last_repo_package_lookup = None
 		logging.debug('env: %s' % str(self.env))
@@ -69,7 +70,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 		logging.debug('[godef] Current directory: %s' % current_dir)
 
 		rel_path = './%s' % (os.path.relpath(package_dir, current_dir))
-		golist_command = ['%s/bin/go' % GOROOT, 'list', '-e', rel_path]
+		golist_command = [os.path.join(GOROOT, 'bin', 'go'), 'list', '-e', rel_path]
 		logging.info('[go list] Issuing command: %s' % ' '.join(golist_command))
 		golist_process = subprocess.Popen(golist_command, cwd=current_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
 		golist_output, stderr = golist_process.communicate()
@@ -83,7 +84,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 		return str(len(buffer_before))
 
 	def run_godef(self, view):
-		godef_args = [self.godefpath, '-i', '-o', self.cursor_offset(), '-t']
+		godef_args = ['godef', '-i', '-o', self.cursor_offset(), '-t']
 		logging.info('[godef] Running shell command: %s' % ' '.join(godef_args))
 
 		godef_process = subprocess.Popen(godef_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
