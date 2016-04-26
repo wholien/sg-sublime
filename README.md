@@ -18,12 +18,12 @@ The Sourcegraph Sublime Plugin allows you to view Go definitions in real-time on
 
 3. Open `Sourcegraph.sublime-settings` by clicking `Sublime Text > Preferences > Package Settings > Sourcegraph > Settings - User`, and add your GOPATH and GOROOT as follows:
 
-```json
+	```json
 {
 	"GOPATH": "/path/to/gopath",
 	"GOROOT": "/usr/local/go"
 }
-```
+	```
 
 Similarly, if you want to try the plugin on a local Sourcegraph server, you can define its base URL in this file using the key `SG_BASE_URL`.
 
