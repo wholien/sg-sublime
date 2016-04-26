@@ -10,9 +10,7 @@ The Sourcegraph Sublime Plugin allows you to view Go definitions in real-time on
 
 1. The plugin assumes `godef` is present at `$GOPATH/bin/godef`. If you don't already have it, you need install `godef`:
 
-```
-go get -v github.com/rogpeppe/godef
-```
+	`go get -v github.com/rogpeppe/godef`
 
 2. Navigate to the Sublime Text Packages directory (the directory can be found in Sublime by clicking `Sublime Text > Preferences > Browse Packages...`) and clone the `sg-sublime` plugin:
 
