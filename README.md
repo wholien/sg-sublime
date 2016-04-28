@@ -16,11 +16,11 @@ The Sourcegraph Sublime Plugin allows you to view Go definitions in real-time on
 
  	OSX:
 
- 		`git clone https://github.com/luttig/sg-sublime ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/sg-sublime`
+ 		git clone https://github.com/luttig/sg-sublime ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/sg-sublime
 
 	Linux:
 
- 		`git clone https://github.com/luttig/sg-sublime ~/.config/sublime-text-3/Packages/sg-sublime`
+ 		git clone https://github.com/luttig/sg-sublime ~/.config/sublime-text-3/Packages/sg-sublime
 
 3. Open `Sourcegraph.sublime-settings` by clicking `Sublime Text > Preferences > Package Settings > Sourcegraph > Settings - User`, and add your GOPATH and GOROOT as follows:
 
@@ -31,7 +31,7 @@ The Sourcegraph Sublime Plugin allows you to view Go definitions in real-time on
 	}
 	```
 
-Similarly, if you want to try the plugin on a local Sourcegraph server, you can define its base URL in this file using the key `SG_BASE_URL`.
+	Similarly, if you want to try the plugin on a local Sourcegraph server, you can define its base URL in this file using the key `SG_BASE_URL`.
 
 ## Usage
 
@@ -39,4 +39,4 @@ The plugin should automatically open a browser tab to initialize your live sessi
 
 ## Support
 
-The Sourcegraph Live Sublime Plugin has currently only been tested using OSX and Sublime Text 3.
+The Sourcegraph Live Sublime Plugin has currently only been tested using Mac OS X and Sublime Text 3.
