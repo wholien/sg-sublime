@@ -1,4 +1,4 @@
 {
 	"SG_LOG_FILE": "/tmp/sourcegraph-sublime.log",
-	"SG_BASE_URL": "https://staging.sourcegraph.com",
+	"SG_BASE_URL": "https://sourcegraph.com",
 }

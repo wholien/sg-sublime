@@ -10,16 +10,36 @@ import sublime
 import urllib.parse
 import urllib.request
 
-settings = sublime.load_settings('Sourcegraph.sublime-settings')
-
-SOURCEGRAPH_BASE_URL = settings.get('SG_BASE_URL', 'https://sourcegraph.com')
-SOURCEGRAPH_LOG_FILE = settings.get('SG_LOG_FILE', '/tmp/sourcegraph-sublime.log')
-logging.basicConfig(filename=SOURCEGRAPH_LOG_FILE, level=logging.DEBUG)
-
-GOPATH = settings.get('GOPATH', '~/go')
-GOROOT = settings.get('GOROOT', '/usr/local/go')
-
 SOURCEGRAPH_CHANNEL = None
+SETTINGS_FILENAME = 'Sourcegraph.sublime-settings'
+SETTINGS = None
+
+def load_settings():
+	global SOURCEGRAPH_BASE_URL
+	SOURCEGRAPH_BASE_URL = SETTINGS.get('SG_BASE_URL', 'https://sourcegraph.com')
+
+	global SOURCEGRAPH_LOG_FILE
+	SOURCEGRAPH_LOG_FILE = SETTINGS.get('SG_LOG_FILE', '/tmp/sourcegraph-sublime.log')
+	global GOPATH
+	GOPATH = SETTINGS.get('GOPATH', '~/go')
+	global GOROOT
+	GOROOT = SETTINGS.get('GOROOT', '/usr/local/go')
+
+	logging.basicConfig(filename=SOURCEGRAPH_LOG_FILE, level=logging.DEBUG)
+
+def reload_settings():
+	print("RELOADING SETTINGS")
+	old_base_url = SOURCEGRAPH_BASE_URL
+	load_settings()
+	if SOURCEGRAPH_BASE_URL != old_base_url:
+		open_live_channel()
+
+def plugin_loaded():
+	global SETTINGS
+	SETTINGS = sublime.load_settings(SETTINGS_FILENAME)
+	SETTINGS.clear_on_change('sg-reload')
+	SETTINGS.add_on_change('sg-reload', reload_settings)
+	load_settings()
 
 def get_channel():
 	global SOURCEGRAPH_CHANNEL
@@ -31,8 +51,10 @@ def get_channel():
 		logging.info('Using existing channel: %s' % SOURCEGRAPH_CHANNEL)
 
 def open_live_channel():
+	print("OPENING LIVE CHANNEL")
 	get_channel()
-	command = ['open', '%s/-/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)]
+	start_browser_command = 'open' if os.name == 'posix' else 'start'
+	command = [start_browser_command, '%s/-/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)]
 	logging.info('[open_live] Opening live channel in browser: %s' % command)
 	subprocess.Popen(command)
 
@@ -80,7 +102,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 	def cursor_offset(self):
 		string_before = self.view.substr(sublime.Region(0, self.view.sel()[0].begin()))
 		string_before.encode('utf-8')
-		buffer_before = bytearray(string_before, encoding="utf8")
+		buffer_before = bytearray(string_before, encoding='utf8')
 		return str(len(buffer_before))
 
 	def run_godef(self, view):
@@ -93,7 +115,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 		if stderr:
 			logging.info('[godef] No definition found, returning. Message: %s' % stderr.decode())
 		else:
-			logging.info("[godef] Output: " + godef_output.decode())
+			logging.info('[godef] Output: %s' % godef_output.decode())
 		return stderr, godef_output
 
 	def issue_live_update(self, variable, repo_package):
@@ -107,7 +129,7 @@ class SgDocCommand(sublime_plugin.EventListener):
 	def on_selection_modified_async(self, view):
 		if view.file_name() == None:
 			return
-		if not view.file_name().endswith("go"):
+		if not view.file_name().endswith('go'):
 			return
 
 		self.view = view
