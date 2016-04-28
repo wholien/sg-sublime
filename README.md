@@ -12,9 +12,15 @@ The Sourcegraph Sublime Plugin allows you to view Go definitions in real-time on
 
 	`go get -u github.com/rogpeppe/godef`
 
-2. Navigate to the Sublime Text Packages directory (the directory can be found in Sublime by clicking `Sublime Text > Preferences > Browse Packages...`) and clone the `sg-sublime` plugin:
+2. Clone the `sg-sublime` plugin into your Sublime Text 3 Package folder:
 
- 	`git clone https://github.com/luttig/sg-sublime`
+OSX:
+
+ 	`git clone https://github.com/luttig/sg-sublime ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/sg-sublime`
+
+Linux:
+
+ 	`git clone https://github.com/luttig/sg-sublime ~/.config/sublime-text-3/Packages/sg-sublime`
 
 3. Open `Sourcegraph.sublime-settings` by clicking `Sublime Text > Preferences > Package Settings > Sourcegraph > Settings - User`, and add your GOPATH and GOROOT as follows:
 
@@ -30,3 +36,7 @@ Similarly, if you want to try the plugin on a local Sourcegraph server, you can 
 ## Usage
 
 The plugin should automatically open a browser tab to initialize your live session when in Go files. If, for any reason, your tab gets closed, press <kbd>&#8984;</kbd>+<kbd>.</kbd>, <kbd>&#8984;</kbd>+<kbd>0</kbd> in any file to reopen the Sourcegraph live tab. Alternatively, you can click on `Sublime Text > Preferences > Package Settings > Sourcegraph > Reopen Browser Tab`. As you navigate through Go files, your browser should automatically load the definition and references for recognized symbols.
+
+## Support
+
+The Sourcegraph Live Sublime Plugin has currently only been tested using OSX and Sublime Text 3.

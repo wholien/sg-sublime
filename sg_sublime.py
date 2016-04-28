@@ -16,14 +16,14 @@ SETTINGS = None
 
 def load_settings():
 	global SOURCEGRAPH_BASE_URL
-	SOURCEGRAPH_BASE_URL = SETTINGS.get('SG_BASE_URL', 'https://sourcegraph.com')
+	SOURCEGRAPH_BASE_URL = SETTINGS.get('SG_BASE_URL', 'https://sourcegraph.com').rstrip('/')
 
 	global SOURCEGRAPH_LOG_FILE
 	SOURCEGRAPH_LOG_FILE = SETTINGS.get('SG_LOG_FILE', '/tmp/sourcegraph-sublime.log')
 	global GOPATH
-	GOPATH = SETTINGS.get('GOPATH', '~/go')
+	GOPATH = SETTINGS.get('GOPATH', '~/go').rstrip(os.pathsep)
 	global GOROOT
-	GOROOT = SETTINGS.get('GOROOT', '/usr/local/go')
+	GOROOT = SETTINGS.get('GOROOT', '/usr/local/go').rstrip(os.pathsep)
 
 	logging.basicConfig(filename=SOURCEGRAPH_LOG_FILE, level=logging.DEBUG)
 
@@ -137,10 +137,6 @@ class SgDocCommand(sublime_plugin.EventListener):
 		if stderr or godef_output.decode() == '':
 			return
 
-		if not self.HAVE_OPENED_LIVE_CHANNEL:
-			open_live_channel()
-			self.HAVE_OPENED_LIVE_CHANNEL = True
-
 		variable = godef_output.decode().split('\n')[1].split()[0]
 		if variable == 'type':
 			variable = godef_output.decode().split('\n')[1].split()[1]
@@ -149,6 +145,10 @@ class SgDocCommand(sublime_plugin.EventListener):
 
 		if godef_output.decode().count(':') < 2: #local variable, not from outside file
 			return
+
+		if not self.HAVE_OPENED_LIVE_CHANNEL:
+			open_live_channel()
+			self.HAVE_OPENED_LIVE_CHANNEL = True
 
 		repo_package = self.get_repo_package(godef_output.decode().split(':')[0])
 		logging.debug('[go list] Path to repo/package: %s' % repo_package)
