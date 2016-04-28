@@ -28,7 +28,6 @@ def load_settings():
 	logging.basicConfig(filename=SOURCEGRAPH_LOG_FILE, level=logging.DEBUG)
 
 def reload_settings():
-	print("RELOADING SETTINGS")
 	old_base_url = SOURCEGRAPH_BASE_URL
 	load_settings()
 	if SOURCEGRAPH_BASE_URL != old_base_url:
@@ -51,7 +50,6 @@ def get_channel():
 		logging.info('Using existing channel: %s' % SOURCEGRAPH_CHANNEL)
 
 def open_live_channel():
-	print("OPENING LIVE CHANNEL")
 	get_channel()
 	start_browser_command = 'open' if os.name == 'posix' else 'start'
 	command = [start_browser_command, '%s/-/live/%s' % (SOURCEGRAPH_BASE_URL, SOURCEGRAPH_CHANNEL)]
