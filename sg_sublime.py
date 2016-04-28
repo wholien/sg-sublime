@@ -13,6 +13,8 @@ import urllib.request
 SOURCEGRAPH_CHANNEL = None
 SETTINGS_FILENAME = 'Sourcegraph.sublime-settings'
 SETTINGS = None
+GOPATH = None
+GOROOT = None
 
 def load_settings():
 	global SOURCEGRAPH_BASE_URL
